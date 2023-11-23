@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@viperfe/evernote@^2.0.5":
+evernote@^2.0.5:
   version "2.0.5"
-  resolved "https://registry.npmmirror.com/@viperfe/evernote/-/evernote-2.0.5.tgz#8776e66f0ec5d0700cbb9d94a12fd1fcf75ca7fd"
-  integrity sha512-abRHDTthOuYuFsJxkvoqXZT+sMjKXypF4NxFTgUvxUevgNhYg8Gk6D/yPrxwM5G6aLopJB8ihBOMGRZdXCTbnA==
+  resolved "https://registry.npmmirror.com/evernote/-/evernote-2.0.5.tgz#187f979b450d93d54190d852c69494e48e677e23"
+  integrity sha512-DuOk3t9HKwkxZBaZU1Mz8vmZSEM2LVI3eLdML90Is3+8WlPwpYcLeo4z+eklT8NUGD3GA6oOnlP+6e0z0rDX1Q==
   dependencies:
     oauth "^0.9.14"
 

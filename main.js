@@ -1,5 +1,5 @@
 const process = require("process");
-const { Client } = require("@viperfe/evernote");
+const { Client, NoteStore } = require("evernote");
 
 const runMain = async () => {
   const client = new Client({
@@ -9,7 +9,10 @@ const runMain = async () => {
   });
   const noteStore = client.getNoteStore();
   noteStore.listNotebooks().then((notebooks) => {
-    console.log(notebooks);
+    for(let notebook of notebooks){
+        let filter = new NoteStore.NoteFilter();
+        noteStore.findNotesMetadata()
+    }
   });
 };
 
