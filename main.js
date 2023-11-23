@@ -8,12 +8,19 @@ const runMain = async () => {
     sandbox: false,
   });
   const noteStore = client.getNoteStore();
-  noteStore.listNotebooks().then((notebooks) => {
-    for(let notebook of notebooks){
-        let filter = new NoteStore.NoteFilter();
-        noteStore.findNotesMetadata()
+  const notebooks = await noteStore.listNotebooks();
+  for (let notebook of notebooks) {
+    console.log("===", notebook.guid, notebook.name);
+    let filter = new NoteStore.NoteFilter({
+      notebookGuid: notebook.guid,
+    });
+    const metaList = await noteStore.findNotesMetadata(filter, 0, 100, {
+      includeTitle: true,
+    });
+    for (let meta of metaList.notes) {
+      console.log(meta.guid, meta.title);
     }
-  });
+  }
 };
 
 runMain();
