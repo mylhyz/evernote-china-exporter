@@ -19,6 +19,17 @@ const runMain = async () => {
     });
     for (let meta of metaList.notes) {
       console.log(meta.guid, meta.title);
+      const note = await noteStore.getNoteWithResultSpec(meta.guid, {
+        includeContent: true,
+        includeResourcesData: true,
+        includeResourcesRecognition: true,
+        includeResourcesAlternateData: true,
+        includeSharedNotes: true,
+        includeNoteAppDataValues: true,
+        includeResourceAppDataValues: true,
+        includeAccountLimits: true,
+      });
+      console.log(note)
     }
   }
 };
