@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/mylhyz/evernote-china-exporter/issues"
   },
-  "homepage": "https://github.com/mylhyz/evernote-china-exporter#readme"
+  "homepage": "https://github.com/mylhyz/evernote-china-exporter#readme",
+  "dependencies": {
+    "@viperfe/evernote": "^2.0.5"
+  }
 }
