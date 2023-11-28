@@ -9,12 +9,15 @@ const runMain = async () => {
   });
   const noteStore = client.getNoteStore();
   const notebooks = await noteStore.listNotebooks();
+  const notebookDataArray = [];
   for (let notebook of notebooks) {
-    console.log("===", notebook.guid, notebook.name);
+    // 保存笔记本数据
+    const noteDataArray = [];
+    
     let filter = new NoteStore.NoteFilter({
       notebookGuid: notebook.guid,
     });
-    const metaList = await noteStore.findNotesMetadata(filter, 0, 100, {
+    const metaList = await noteStore.findNotesMetadata(filter, 0, 200, {
       includeTitle: true,
     });
     for (let meta of metaList.notes) {
@@ -29,8 +32,12 @@ const runMain = async () => {
         includeResourceAppDataValues: true,
         includeAccountLimits: true,
       });
-      console.log(note)
+      console.log(note);
     }
+    notebookDataArray.push({
+      guid: notebook.guid,
+      name: notebook.name,
+    });
   }
 };
 
