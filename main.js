@@ -4,7 +4,16 @@ const fs = require("fs");
 
 const SYNCED_CACHE_FILE = "./exported/.synced-notes.json";
 
+const ensureSyncedCacheFile = () => {
+  if (!fs.existsSync(SYNCED_CACHE_FILE)) {
+    fs.writeFileSync(SYNCED_CACHE_FILE, JSON.stringify({}, null, 2), {
+      encoding: "utf-8",
+    });
+  }
+};
+
 const runMain = async () => {
+  ensureSyncedCacheFile();
   const syncded = require(SYNCED_CACHE_FILE);
   const client = new Client({
     token: process.env.EVERNOTE_API_TOKEN,
