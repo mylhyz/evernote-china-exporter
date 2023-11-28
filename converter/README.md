@@ -5,6 +5,6 @@
 
 支持情况：
 
-[ ] HTML
-[ ] Markdown
-[ ] ???
+- [ ] HTML
+- [ ] Markdown
+- [ ] ???
