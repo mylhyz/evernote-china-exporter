@@ -9,31 +9,53 @@ const runMain = async () => {
     sandbox: false,
   });
   const noteStore = client.getNoteStore();
-  const notebooks = await noteStore.listNotebooks();
+  let notebooks = [];
+  try {
+    notebooks = await noteStore.listNotebooks();
+  } catch (e) {
+    console.error("err-listNotebooks", e);
+  }
   const notebookDataArray = [];
   for (let notebook of notebooks) {
     let filter = new NoteStore.NoteFilter({
       notebookGuid: notebook.guid,
     });
-    const metaList = await noteStore.findNotesMetadata(filter, 0, 300, {
-      includeTitle: true,
-    });
+    let metaList;
+    try {
+      metaList = await noteStore.findNotesMetadata(filter, 0, 300, {
+        includeTitle: true,
+      });
+    } catch (e) {
+      console.error(
+        `err-findNotesMetadata-${notebook.guid}-${notebook.name}`,
+        e
+      );
+      continue;
+    }
     console.log(`exporting notebooks... [${notebook.name}]`);
     console.log(
       `exporting ${metaList.notes.length} note for [${notebook.name}]`
     );
     const noteDataArray = [];
     for (let meta of metaList.notes) {
-      const note = await noteStore.getNoteWithResultSpec(meta.guid, {
-        includeContent: true,
-        includeResourcesData: true,
-        includeResourcesRecognition: true,
-        includeResourcesAlternateData: true,
-        includeSharedNotes: true,
-        includeNoteAppDataValues: true,
-        includeResourceAppDataValues: true,
-        includeAccountLimits: true,
-      });
+      let note;
+      try {
+        note = await noteStore.getNoteWithResultSpec(meta.guid, {
+          includeContent: true,
+          includeResourcesData: true,
+          includeResourcesRecognition: true,
+          includeResourcesAlternateData: true,
+          includeSharedNotes: true,
+          includeNoteAppDataValues: true,
+          includeResourceAppDataValues: true,
+          includeAccountLimits: true,
+        });
+      } catch (e) {
+        console.error(
+          `err-getNoteWithResultSpec-${meta.guid}-${meta.title}`,
+          e
+        );
+      }
       fs.writeFileSync(
         `exported/note_${meta.guid}.json`,
         JSON.stringify(note, null, 2),
@@ -41,11 +63,9 @@ const runMain = async () => {
       );
       noteDataArray.push({
         guid: meta.guid,
-        name: meta.name,
+        name: meta.title,
       });
-      console.log(
-        `exported ${meta.name} for [${notebook.name}]`
-      );
+      console.log(`exported ${meta.title} for [${notebook.name}]`);
     }
     notebookDataArray.push({
       guid: notebook.guid,
