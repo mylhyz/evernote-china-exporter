@@ -15,7 +15,7 @@ export EVERNOTE_API_TOKEN=<你自己申请的token>
 node main.js
 ```
 
-发生报错一般是由于超时，比如，等待 rateLimitDuration 的秒数后重试即可，本项目有对已经拉取的笔记进行缓存
+发生报错一般是由于超时，比如，
 
 ```
 ThriftException {
@@ -24,3 +24,4 @@ ThriftException {
   rateLimitDuration: 3009
 }
 ```
+等待 rateLimitDuration 的秒数后重试即可，本项目有对已经拉取的笔记进行缓存
