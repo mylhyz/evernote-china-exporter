@@ -2,7 +2,10 @@ const process = require("process");
 const { Client, NoteStore } = require("evernote");
 const fs = require("fs");
 
+const SYNCED_CACHE_FILE = "./exported/.synced-notes.json";
+
 const runMain = async () => {
+  const syncded = require(SYNCED_CACHE_FILE);
   const client = new Client({
     token: process.env.EVERNOTE_API_TOKEN,
     china: true,
@@ -38,29 +41,33 @@ const runMain = async () => {
     );
     const noteDataArray = [];
     for (let meta of metaList.notes) {
-      let note;
-      try {
-        note = await noteStore.getNoteWithResultSpec(meta.guid, {
-          includeContent: true,
-          includeResourcesData: true,
-          includeResourcesRecognition: true,
-          includeResourcesAlternateData: true,
-          includeSharedNotes: true,
-          includeNoteAppDataValues: true,
-          includeResourceAppDataValues: true,
-          includeAccountLimits: true,
-        });
-      } catch (e) {
-        console.error(
-          `err-getNoteWithResultSpec-${meta.guid}-${meta.title}`,
-          e
-        );
+      // 跳过已经同步的笔记
+      if (!syncded[meta.guid]) {
+        let note;
+        try {
+          note = await noteStore.getNoteWithResultSpec(meta.guid, {
+            includeContent: true,
+            includeResourcesData: true,
+            includeResourcesRecognition: true,
+            includeResourcesAlternateData: true,
+            includeSharedNotes: true,
+            includeNoteAppDataValues: true,
+            includeResourceAppDataValues: true,
+            includeAccountLimits: true,
+          });
+          fs.writeFileSync(
+            `exported/note_${meta.guid}.json`,
+            JSON.stringify(note, null, 2),
+            { encoding: "utf-8" }
+          );
+          syncded[meta.guid] = 1;
+        } catch (e) {
+          console.error(
+            `err-getNoteWithResultSpec-${meta.guid}-${meta.title}`,
+            e
+          );
+        }
       }
-      fs.writeFileSync(
-        `exported/note_${meta.guid}.json`,
-        JSON.stringify(note, null, 2),
-        { encoding: "utf-8" }
-      );
       noteDataArray.push({
         guid: meta.guid,
         name: meta.title,
@@ -78,6 +85,9 @@ const runMain = async () => {
     JSON.stringify(notebookDataArray, null, 2),
     { encoding: "utf-8" }
   );
+  fs.writeFileSync(SYNCED_CACHE_FILE, JSON.stringify(syncded, null, 2), {
+    encoding: "utf-8",
+  });
 };
 
 runMain();
