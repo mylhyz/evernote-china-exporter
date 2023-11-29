@@ -8,5 +8,9 @@
   },
   "keywords": [],
   "author": "mylhyz",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@joplin/turndown": "^4.0.71",
+    "xml-flow": "^1.0.4"
+  }
 }

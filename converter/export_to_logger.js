@@ -1,4 +1,7 @@
 async function onNotebooks(context) {
+  if (!process.env.LOG_ENABLE) {
+    return;
+  }
   console.log(`[INFO] === notebooks ===`);
   for (let notebook of context.notebooks) {
     console.log(`[INFO] === ${notebook.name}`);
@@ -7,9 +10,7 @@ async function onNotebooks(context) {
     }
   }
 }
-async function onNotes(context) {
-  
-}
+async function onNotes(context) {}
 
 module.exports = {
   onNotebooks,
