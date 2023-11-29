@@ -1,6 +1,16 @@
 const fs = require("fs");
 const path = require("path");
 
+const markdown = require("./export_to_markdown");
+const logger = require("./export_to_logger");
+const walkers = [markdown, logger];
+const runWalk = async (context) => {
+  for (let walker of walkers) {
+    await walker.onNotebooks(context);
+    await walker.onNotes(context);
+  }
+};
+
 const runMain = async (argv) => {
   if (argv.length != 1) {
     console.error("wrong usage!");
@@ -16,12 +26,27 @@ const runMain = async (argv) => {
     process.exit(1);
   }
   const fps = fs.readdirSync(dp);
+  let context = {
+    notebooks: [],
+    notes: [],
+  };
   for (let _fp of fps) {
+    if (_fp.indexOf(".synced-notes.json") !== -1) {
+      continue;
+    }
+    if (_fp.indexOf(".gitkeep") !== -1) {
+      continue;
+    }
     const fp = path.join(dp, _fp);
     const content = fs.readFileSync(fp, { encoding: "utf-8" });
     const json = JSON.parse(content);
-    // 处理数据 TODO
+    if (_fp.indexOf("notebooks.json") == -1) {
+      context.notes.push(json);
+    } else {
+      context.notebooks = json;
+    }
   }
+  runWalk(context);
 };
 
 const argv = process.argv;
