@@ -1,9 +1,10 @@
 const fs = require("fs");
 const path = require("path");
 
+const html = require("./export_to_html");
 const markdown = require("./export_to_markdown");
 const logger = require("./export_to_logger");
-const walkers = [markdown, logger];
+const walkers = [html, markdown, logger];
 const runWalk = async (context) => {
   for (let walker of walkers) {
     await walker.onNotebooks(context);

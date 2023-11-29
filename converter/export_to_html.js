@@ -1,10 +1,9 @@
 const fs = require("fs");
 const path = require("path");
-const TurndownService = require("@joplin/turndown");
 const flow = require("xml-flow");
 const { Readable } = require("stream");
 
-const EXPORTED_FOLDER = ".exported-markdown-cache";
+const EXPORTED_FOLDER = ".exported-html-cache";
 
 const mkdirSafe = (dir) => {
   if (fs.existsSync(dir)) {
@@ -18,6 +17,7 @@ const mkdirSafe = (dir) => {
 
 async function onNotebooks(context) {
   context._md_map = {};
+  context._html_map = {};
   //创建所有文件夹
   const root = path.join(__dirname, EXPORTED_FOLDER);
   mkdirSafe(root);
@@ -40,9 +40,9 @@ async function convert(note, file) {
     };
     const stream = Readable.from([note.content]);
     const xml = flow(stream);
-    xml.on("tag:en-note", (data) => {
-      //TODO 先处理成 HTML，然后使用 TurndownService 转换成 Markdown
-    });
+    xml.on('tag:en-note',(data)=>{
+      console.log(data);
+    })
     xml.on("end", () => {
       resolve();
     });
