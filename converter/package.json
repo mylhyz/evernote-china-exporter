@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "@joplin/turndown": "^4.0.71",
+    "mustache": "^4.2.0",
     "xml-flow": "^1.0.4"
   }
 }
