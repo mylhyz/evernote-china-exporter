@@ -102,7 +102,7 @@ async function convert(note, file) {
 async function onNotes(context) {
   let count = 1;
   for (let note of context.notes) {
-    if (count > 1) {
+    if (count > 3) {
       break;
     }
     count = count + 1;
