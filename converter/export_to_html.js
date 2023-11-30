@@ -16,8 +16,43 @@ const mkdirSafe = (dir) => {
   }
 };
 
+const findGenerator = (data) => {
+  const keys = Object.keys(data);
+  const keysSize = keys.length;
+  if (keysSize == 1 && data["$name"] && data["$name"] == "div") {
+    return () => {
+      return "<br/>";
+    };
+  } else if (
+    keysSize == 2 &&
+    data["$name"] &&
+    data["$name"] == "div" &&
+    data["$text"]
+  ) {
+    return () => {
+      return "<p>" + data["$text"] + "</p>";
+    };
+  } else if (
+    keysSize == 3 &&
+    data["$name"] &&
+    data["$name"] == "div" &&
+    data["en-todo"] &&
+    data["$text"]
+  ) {
+    const checked = data["en-todo"] == "false" ? "" : " checked";
+    return () => {
+      return `<input type="checkbox"${checked}></input>${data["$text"]}`;
+    };
+  }
+};
+
 const generate = (data) => {
-  return "<div><div/>";
+  const generator = findGenerator(data);
+  if (generator) {
+    return generator();
+  }
+  console.log(data);
+  return "<div></div>";
 };
 
 async function onNotebooks(context) {
@@ -44,9 +79,9 @@ async function convert(note, file) {
     };
     const stream = Readable.from([note.content]);
     const xml = flow(stream);
-    const lines = [];
+    const note_bodys = [];
     xml.on("tag:div", (data) => {
-      lines.push(generate(data));
+      note_bodys.push(generate(data));
     });
     xml.on("end", () => {
       //组装html文件
@@ -55,7 +90,7 @@ async function convert(note, file) {
       });
       const result = Mustache.render(template, {
         note_title: note.name,
-        note_bodys: lines,
+        note_bodys,
       });
       fs.writeFileSync(file, result, { encoding: "utf-8" });
       resolve();
