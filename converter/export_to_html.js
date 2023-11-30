@@ -16,42 +16,107 @@ const mkdirSafe = (dir) => {
   }
 };
 
-const findGenerator = (data) => {
-  const keys = Object.keys(data);
-  const keysSize = keys.length;
-  if (keysSize == 1 && data["$name"] && data["$name"] == "div") {
-    return () => {
-      return "<br/>";
-    };
-  } else if (
-    keysSize == 2 &&
-    data["$name"] &&
-    data["$name"] == "div" &&
-    data["$text"]
-  ) {
-    return () => {
-      return data["$text"];
-    };
-  } else if (
-    keysSize == 3 &&
-    data["$name"] &&
-    data["$name"] == "div" &&
-    data["en-todo"] &&
-    data["$text"]
-  ) {
-    const checked = data["en-todo"] == "false" ? "" : " checked";
-    return () => {
-      return `<input type="checkbox"${checked}/>${data["$text"]}`;
-    };
+const genText = (text) => {
+  if (!text) {
+    return "";
   }
+  return text;
+};
+
+const genAttrs = (attrs) => {
+  let attr_str = "";
+  for (let _key of Object.keys(attrs)) {
+    attr_str = `${attr_str} ${_key}="${attrs[_key]}"`;
+  }
+  return attr_str;
+};
+
+const gen = (data) => {
+  if (data["$name"] == "div") {
+    let keys = Object.keys(data);
+    // 特殊情况 <br/>
+    if (keys.length == 1) {
+      return "<div><br/></div>";
+    }
+    // 正常处理
+    let attr_str = "";
+    let element = "";
+    let text_str = "";
+    for (let key of keys) {
+      if (key == "$name") {
+        continue;
+      } else if (key == "$attrs") {
+        attr_str = genAttrs(data["$attrs"]);
+      } else if (key == "$text") {
+        text_str = genText(data["$text"]);
+      } else if (key == "en-todo") {
+        const checked = data["en-todo"] == "false" ? "" : " checked";
+        const todo = `<input type="checkbox"${checked}/>`;
+        element = `${element}${todo}`;
+      } else if (key == "span") {
+        if (data["span"]["$name"]) {
+          throw Error(`error 1`);
+        }
+        data["span"]["$name"] = "span";
+        const span = gen(data["span"]);
+        element = `${element}${span}`;
+      } else {
+        console.log(`[ERR][DIV]${data[key]}`);
+        throw Error(`[DIV]${key} is not processed`);
+      }
+    }
+    return `<div${attr_str}>${element}${text_str}</div>`;
+  } else if (data["$name"] == "span") {
+    let keys = Object.keys(data);
+    let attr_str = "";
+    let element = "";
+    let text_str = "";
+    for (let key of keys) {
+      if (key == "$name") {
+        continue;
+      } else if (key == "$attrs") {
+        attr_str = genAttrs(data["$attrs"]);
+      } else if (key == "$text") {
+        text_str = genText(data["$text"]);
+      } else if (key == "a") {
+        if (data["a"]["$name"]) {
+          throw Error(`error 1`);
+        }
+        data["a"]["$name"] = "a";
+        const a = gen(data["a"]);
+        element = `${element}${a}`;
+      } else {
+        console.log(`[ERR][SPAN]${data[key]}`);
+        throw Error(`[SPAN]${key} is not processed`);
+      }
+    }
+    return `<span${attr_str}>${text_str}</span>`;
+  } else if (data["$name"] == "a") {
+    let keys = Object.keys(data);
+    let attr_str = "";
+    let text_str = "";
+    for (let key of keys) {
+      if (key == "$name") {
+        continue;
+      } else if (key == "$attrs") {
+        attr_str = genAttrs(data["$attrs"]);
+      } else if (key == "$text") {
+        text_str = genText(data["$text"]);
+      } else {
+        console.log(`[ERR][A]${data[key]}`);
+        throw Error(`[A]${key} is not processed`);
+      }
+    }
+    return `<a${attr_str}>${text_str}</a>`;
+  }
+  console.log(`[ERROR]${data}`);
+  return "<error></error>";
 };
 
 const generate = (data) => {
-  const generator = findGenerator(data);
-  if (generator) {
-    return `<div>${generator()}</div>`;
-  }
-  return "<div></div>";
+  const ret = gen(data);
+  console.log(`[OUTPUT] ${ret}`);
+  return ret;
 };
 
 async function onNotebooks(context) {
