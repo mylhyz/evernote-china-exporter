@@ -30,7 +30,7 @@ const findGenerator = (data) => {
     data["$text"]
   ) {
     return () => {
-      return "<p>" + data["$text"] + "</p>";
+      return data["$text"];
     };
   } else if (
     keysSize == 3 &&
@@ -41,7 +41,7 @@ const findGenerator = (data) => {
   ) {
     const checked = data["en-todo"] == "false" ? "" : " checked";
     return () => {
-      return `<input type="checkbox"${checked}></input>${data["$text"]}`;
+      return `<input type="checkbox"${checked}/>${data["$text"]}`;
     };
   }
 };
@@ -49,9 +49,8 @@ const findGenerator = (data) => {
 const generate = (data) => {
   const generator = findGenerator(data);
   if (generator) {
-    return generator();
+    return `<div>${generator()}</div>`;
   }
-  console.log(data);
   return "<div></div>";
 };
 
@@ -64,7 +63,7 @@ async function onNotebooks(context) {
     const folder = path.join(root, notebook.name);
     mkdirSafe(folder);
     for (let note of notebook.array) {
-      const name = note.name.replaceAll("/", "-");
+      const name = note.name.replaceAll("/", "_");
       const file = path.join(folder, `${name}.html`);
       //给每一个创建笔记文件创建guid关联
       context._html_map[note.guid] = file;
@@ -89,7 +88,7 @@ async function convert(note, file) {
         encoding: "utf-8",
       });
       const result = Mustache.render(template, {
-        note_title: note.name,
+        note_title: note.title,
         note_bodys,
       });
       fs.writeFileSync(file, result, { encoding: "utf-8" });
