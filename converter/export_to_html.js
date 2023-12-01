@@ -38,6 +38,10 @@ const gen = (data) => {
     if (keys.length == 1) {
       return "<div><br/></div>";
     }
+    // 特殊情况的div，只有style
+    if (keys.length == 2 && data["style"]) {
+      return `<div style="${data["style"]}"><br/></div>`;
+    }
     // 正常处理
     let attr_str = "";
     let element = "";
@@ -60,6 +64,20 @@ const gen = (data) => {
         data["span"]["$name"] = "span";
         const span = gen(data["span"]);
         element = `${element}${span}`;
+      } else if (key == "img") {
+        if (data["img"]["$name"]) {
+          throw Error(`error 1`);
+        }
+        data["img"]["$name"] = "img";
+        const img = gen(data["img"]);
+        element = `${element}${img}`;
+      } else if (key == "en-media") {
+        if (data["en-media"]["$name"]) {
+          throw Error(`error 1`);
+        }
+        data["en-media"]["$name"] = "en-media";
+        const media = gen(data["en-media"]);
+        element = `${element}${media}`;
       } else {
         console.log(`[ERR][DIV]${data[key]}`);
         throw Error(`[DIV]${key} is not processed`);
@@ -85,12 +103,19 @@ const gen = (data) => {
         data["a"]["$name"] = "a";
         const a = gen(data["a"]);
         element = `${element}${a}`;
+      } else if (key == "en-media") {
+        if (data["en-media"]["$name"]) {
+          throw Error(`error 1`);
+        }
+        data["en-media"]["$name"] = "en-media";
+        const media = gen(data["en-media"]);
+        element = `${element}${media}`;
       } else {
         console.log(`[ERR][SPAN]${data[key]}`);
         throw Error(`[SPAN]${key} is not processed`);
       }
     }
-    return `<span${attr_str}>${text_str}</span>`;
+    return `<span${attr_str}>${element}${text_str}</span>`;
   } else if (data["$name"] == "a") {
     let keys = Object.keys(data);
     let attr_str = "";
