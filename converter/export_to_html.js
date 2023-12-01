@@ -32,7 +32,9 @@ const genAttrs = (attrs) => {
 };
 
 const gen = (data) => {
-  if (data["$name"] == "div") {
+  if (typeof data === "string") {
+    return data;
+  } else if (data["$name"] == "div") {
     let keys = Object.keys(data);
     // 特殊情况 <br/>
     if (keys.length == 1) {
@@ -61,9 +63,17 @@ const gen = (data) => {
         if (data["span"]["$name"]) {
           throw Error(`error 1`);
         }
-        data["span"]["$name"] = "span";
-        const span = gen(data["span"]);
-        element = `${element}${span}`;
+        if (Array.isArray(data["span"])) {
+          for (let item of data["span"]) {
+            item["$name"] = "span";
+            const gi = gen(item);
+            element = `${element}${gi}`;
+          }
+        } else {
+          data["span"]["$name"] = "span";
+          const span = gen(data["span"]);
+          element = `${element}${span}`;
+        }
       } else if (key == "img") {
         if (data["img"]["$name"]) {
           throw Error(`error 1`);
@@ -78,8 +88,30 @@ const gen = (data) => {
         data["en-media"]["$name"] = "en-media";
         const media = gen(data["en-media"]);
         element = `${element}${media}`;
+      } else if (key == "div") {
+        const div = data["div"];
+        if (Array.isArray(div)) {
+          for (let item of div) {
+            const gi = gen(item);
+            element = `${element}${gi}`;
+          }
+        } else {
+          div["$name"] = "div";
+          const _div = gen(div);
+          element = `${element}${_div}`;
+        }
+      } else if (key == "$markup") {
+        const markup = data["$markup"];
+        if (Array.isArray(markup)) {
+          for (let item of markup) {
+            const gi = gen(item);
+            element = `${element}${gi}`;
+          }
+        } else {
+          throw Error("[DIV]$markup is not an array");
+        }
       } else {
-        console.log(`[ERR][DIV]${data[key]}`);
+        console.log(`[ERR][DIV]${JSON.stringify(data[key])}`);
         throw Error(`[DIV]${key} is not processed`);
       }
     }
@@ -111,7 +143,7 @@ const gen = (data) => {
         const media = gen(data["en-media"]);
         element = `${element}${media}`;
       } else {
-        console.log(`[ERR][SPAN]${data[key]}`);
+        console.log(`[ERR][SPAN]${JSON.stringify(data[key])}`);
         throw Error(`[SPAN]${key} is not processed`);
       }
     }
@@ -128,13 +160,13 @@ const gen = (data) => {
       } else if (key == "$text") {
         text_str = genText(data["$text"]);
       } else {
-        console.log(`[ERR][A]${data[key]}`);
+        console.log(`[ERR][A]${JSON.stringify(data[key])}`);
         throw Error(`[A]${key} is not processed`);
       }
     }
     return `<a${attr_str}>${text_str}</a>`;
   }
-  console.log(`[ERROR]${data}`);
+  console.log(`[ERROR]${JSON.stringify(data)}`);
   return "<error></error>";
 };
 
