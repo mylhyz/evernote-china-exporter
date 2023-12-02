@@ -349,10 +349,10 @@ ws@^8.13.0:
   resolved "https://registry.npmmirror.com/ws/-/ws-8.14.2.tgz#6c249a806eb2db7a20d26d51e7709eab7b2e6c7f"
   integrity sha512-wEBG1ftX4jcglPxgFCMJmZ2PLtSbJ2Peg6TmpJFTbe9GZYOQCDPdMYu/Tm0/bGZkw8paZnJY45J4K2PZrLYq8g==
 
-xml-flow@^1.0.4:
-  version "1.0.4"
-  resolved "https://registry.npmmirror.com/xml-flow/-/xml-flow-1.0.4.tgz#2d82b7ece17d250d314ba5b2177c911d9b102f29"
-  integrity sha512-r19LXKPL7vkVGL6oWHlESoBgwUVom5w/w8opuS53qULh8+K2w+K9K72edTIQa+X/Vxx1R7ugnCabHFSZ1Tv2zA==
+xml-js@^1.6.11:
+  version "1.6.11"
+  resolved "https://registry.npmmirror.com/xml-js/-/xml-js-1.6.11.tgz#927d2f6947f7f1c19a316dd8eea3614e8b18f8e9"
+  integrity sha512-7rVi2KMfwfWFl+GpPg6m80IVMWXLRjO+PxTq7V2CDhoGak0wzYzFgUY2m4XJ47OGdXd8eLE8EmwfAmdjw7lC1g==
   dependencies:
     sax "^1.2.4"
 

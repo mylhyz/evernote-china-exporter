@@ -12,6 +12,6 @@
   "dependencies": {
     "@joplin/turndown": "^4.0.71",
     "mustache": "^4.2.0",
-    "xml-flow": "^1.0.4"
+    "xml-js": "^1.6.11"
   }
 }
