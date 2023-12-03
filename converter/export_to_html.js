@@ -1,7 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const flow = require("xml-flow");
-const { Readable } = require("stream");
+var converter = require("xml-js");
 const Mustache = require("mustache");
 
 const EXPORTED_FOLDER = ".exported-html-cache";
@@ -16,164 +15,100 @@ const mkdirSafe = (dir) => {
   }
 };
 
-const genText = (text) => {
-  if (!text) {
+const genAttrs = (attrs) => {
+  if (!attrs) {
     return "";
   }
-  return text;
-};
-
-const genAttrs = (attrs) => {
   let attr_str = "";
   for (let _key of Object.keys(attrs)) {
-    attr_str = `${attr_str} ${_key}="${attrs[_key]}"`;
+    //属性值对双引号进行转义
+    let v = attrs[_key];
+    v = v.replaceAll('"', "&quot;");
+    attr_str = `${attr_str} ${_key}="${v}"`;
   }
   return attr_str;
 };
 
 const gen = (data) => {
-  if (typeof data === "string") {
-    return data;
-  } else if (data["$name"] == "div") {
-    let keys = Object.keys(data);
-    // 特殊情况 <br/>
-    if (keys.length == 1) {
-      return "<div><br/></div>";
-    }
-    // 特殊情况的div，只有style
-    if (keys.length == 2 && data["style"]) {
-      return `<div style="${data["style"]}"><br/></div>`;
-    }
-    // 正常处理
-    let attr_str = "";
-    let element = "";
-    let text_str = "";
-    for (let key of keys) {
-      if (key == "$name") {
-        continue;
-      } else if (key == "$attrs") {
-        attr_str = genAttrs(data["$attrs"]);
-      } else if (key == "$text") {
-        text_str = genText(data["$text"]);
-      } else if (key == "en-todo") {
-        const checked = data["en-todo"] == "false" ? "" : " checked";
-        const todo = `<input type="checkbox"${checked}/>`;
-        element = `${element}${todo}`;
-      } else if (key == "span") {
-        if (data["span"]["$name"]) {
-          throw Error(`error 1`);
-        }
-        if (Array.isArray(data["span"])) {
-          for (let item of data["span"]) {
-            item["$name"] = "span";
-            const gi = gen(item);
-            element = `${element}${gi}`;
-          }
-        } else {
-          data["span"]["$name"] = "span";
-          const span = gen(data["span"]);
-          element = `${element}${span}`;
-        }
-      } else if (key == "img") {
-        if (data["img"]["$name"]) {
-          throw Error(`error 1`);
-        }
-        data["img"]["$name"] = "img";
-        const img = gen(data["img"]);
-        element = `${element}${img}`;
-      } else if (key == "en-media") {
-        if (data["en-media"]["$name"]) {
-          throw Error(`error 1`);
-        }
-        data["en-media"]["$name"] = "en-media";
-        const media = gen(data["en-media"]);
-        element = `${element}${media}`;
-      } else if (key == "div") {
-        const div = data["div"];
-        if (Array.isArray(div)) {
-          for (let item of div) {
-            const gi = gen(item);
-            element = `${element}${gi}`;
-          }
-        } else {
-          div["$name"] = "div";
-          const _div = gen(div);
-          element = `${element}${_div}`;
-        }
-      } else if (key == "$markup") {
-        const markup = data["$markup"];
-        if (Array.isArray(markup)) {
-          for (let item of markup) {
-            const gi = gen(item);
-            element = `${element}${gi}`;
-          }
-        } else {
-          throw Error("[DIV]$markup is not an array");
+  if (data.type == "element") {
+    if (
+      data.name == "div" ||
+      data.name == "span" ||
+      data.name == "a" ||
+      data.name == "img" ||
+      data.name == "u" ||
+      data.name == "h1" ||
+      data.name == "h2" ||
+      data.name == "h3" ||
+      data.name == "h4" ||
+      data.name == "h5" ||
+      data.name == "p" ||
+      data.name == "pre" ||
+      data.name == "code" ||
+      data.name == "s" ||
+      data.name == "ul" ||
+      data.name == "li" ||
+      data.name == "ol" ||
+      data.name == "b" ||
+      data.name == "i" ||
+      data.name == "table" ||
+      data.name == "col" ||
+      data.name == "colgroup" ||
+      data.name == "tbody" ||
+      data.name == "tr" ||
+      data.name == "td" ||
+      data.name == "font" ||
+      data.name == "strong" ||
+      data.name == "strike" ||
+      data.name == "center" ||
+      data.name == "dl" ||
+      data.name == "dt" ||
+      data.name == "dd" ||
+      data.name == "blockquote" ||
+      data.name == "en-media"
+    ) {
+      // 处理 attributes
+      let attr_str = genAttrs(data.attributes);
+      let elements = "";
+      // 处理 elements
+      if (data.elements) {
+        for (let ele of data.elements) {
+          const ge = gen(ele);
+          elements = `${elements}${ge}`;
         }
       } else {
-        console.log(`[ERR][DIV]${JSON.stringify(data[key])}`);
-        throw Error(`[DIV]${key} is not processed`);
-      }
-    }
-    return `<div${attr_str}>${element}${text_str}</div>`;
-  } else if (data["$name"] == "span") {
-    let keys = Object.keys(data);
-    let attr_str = "";
-    let element = "";
-    let text_str = "";
-    for (let key of keys) {
-      if (key == "$name") {
-        continue;
-      } else if (key == "$attrs") {
-        attr_str = genAttrs(data["$attrs"]);
-      } else if (key == "$text") {
-        text_str = genText(data["$text"]);
-      } else if (key == "a") {
-        if (data["a"]["$name"]) {
-          throw Error(`error 1`);
+        // 特殊处理一种情况
+        if (data.name == "span") {
+          elements = "&nbsp;&nbsp;";
         }
-        data["a"]["$name"] = "a";
-        const a = gen(data["a"]);
-        element = `${element}${a}`;
-      } else if (key == "en-media") {
-        if (data["en-media"]["$name"]) {
-          throw Error(`error 1`);
-        }
-        data["en-media"]["$name"] = "en-media";
-        const media = gen(data["en-media"]);
-        element = `${element}${media}`;
-      } else {
-        console.log(`[ERR][SPAN]${JSON.stringify(data[key])}`);
-        throw Error(`[SPAN]${key} is not processed`);
       }
+      return `<${data.name}${attr_str}>${elements}</${data.name}>`;
+    } else if (data.name == "br") {
+      return "<br/>";
+    } else if (data.name == "en-todo") {
+      const checked =
+        data.attributes && data.attributes["checked"] ? " checked" : "";
+      return `<input type="checkbox"${checked}/>`;
+    } else {
+      throw Error(`name ${data.name} ???`);
     }
-    return `<span${attr_str}>${element}${text_str}</span>`;
-  } else if (data["$name"] == "a") {
-    let keys = Object.keys(data);
-    let attr_str = "";
-    let text_str = "";
-    for (let key of keys) {
-      if (key == "$name") {
-        continue;
-      } else if (key == "$attrs") {
-        attr_str = genAttrs(data["$attrs"]);
-      } else if (key == "$text") {
-        text_str = genText(data["$text"]);
-      } else {
-        console.log(`[ERR][A]${JSON.stringify(data[key])}`);
-        throw Error(`[A]${key} is not processed`);
-      }
-    }
-    return `<a${attr_str}>${text_str}</a>`;
+  } else if (data.type == "text") {
+    return data.text;
+  } else {
+    throw Error(`type ${data.type} ???`);
   }
-  console.log(`[ERROR]${JSON.stringify(data)}`);
-  return "<error></error>";
 };
 
 const generate = (data) => {
-  const ret = gen(data);
-  console.log(`[OUTPUT] ${ret}`);
-  return ret;
+  const lines = data["elements"][1]["elements"];
+  if (!lines) {
+    return [];
+  }
+  const bodys = [];
+  for (let line of lines) {
+    bodys.push(gen(line));
+  }
+  return bodys;
 };
 
 async function onNotebooks(context) {
@@ -194,40 +129,26 @@ async function onNotebooks(context) {
 }
 
 async function convert(note, file) {
-  return new Promise((resolve, reject) => {
-    const logAndReject = (error) => {
-      reject(error);
-    };
-    const stream = Readable.from([note.content]);
-    const xml = flow(stream);
-    const note_bodys = [];
-    xml.on("tag:div", (data) => {
-      note_bodys.push(generate(data));
-    });
-    xml.on("end", () => {
-      //组装html文件
-      const template = fs.readFileSync("templates/index.html", {
-        encoding: "utf-8",
-      });
-      const result = Mustache.render(template, {
-        note_title: note.title,
-        note_bodys,
-      });
-      fs.writeFileSync(file, result, { encoding: "utf-8" });
-      resolve();
-    });
-    xml.on("error", logAndReject);
-    stream.on("error", logAndReject);
+  const obj = converter.xml2js(note.content);
+  const note_bodys = generate(obj);
+  if (note_bodys.length == 0) {
+    console.warn(`${note.title} is empty body`);
+  }
+
+  //组装html文件
+  const template = fs.readFileSync("templates/index.html", {
+    encoding: "utf-8",
   });
+  const result = Mustache.render(template, {
+    note_title: note.title,
+    note_bodys,
+  });
+
+  fs.writeFileSync(file, result, { encoding: "utf-8" });
 }
 
 async function onNotes(context) {
-  let count = 1;
   for (let note of context.notes) {
-    if (count > 3) {
-      break;
-    }
-    count = count + 1;
     await convert(note, context._html_map[note.guid]);
   }
 }
