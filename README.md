@@ -2,6 +2,8 @@
 
 ### 使用方法
 
+### 导出原始数据
+
 > 我的电脑环境是 MacBook Pro / 2.3 GHz 双核 Intel Core i5 / NodeJS v20.10.0
 
 需要提前申请开发者 Token - https://dev.yinxiang.com/doc/articles/dev_tokens.php
@@ -28,3 +30,24 @@ ThriftException {
 ```
 
 等待 rateLimitDuration 的秒数后重试即可，本项目有对已经拉取的笔记进行缓存
+
+### 转换导出格式
+
+在 `converter` 下是用于将导出的原始数据进行转换的代码，目前支持导出 html，markdown
+
+```bash
+cd converter
+node main.js <evernote-china-exporter/exported 的路径>
+
+#或者添加环境变量打印出所有笔记本和笔记标题
+LOG_ENABLE=1 node main.js <evernote-china-exporter/exported 的路径>
+```
+
+默认的导出文件夹是
+
+```
+# html
+.exported-html-cache
+# markdown
+.exported-markdown-cache
+```
