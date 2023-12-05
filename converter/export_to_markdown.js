@@ -3,6 +3,11 @@ const path = require("path");
 const crypto = require("crypto");
 const converter = require("xml-js");
 const Mustache = require("mustache");
+const TurndownService = require("@joplin/turndown");
+const turndownPluginGfm = require("@joplin/turndown-plugin-gfm");
+const gfm = turndownPluginGfm.gfm;
+const turndownService = new TurndownService();
+turndownService.use(gfm);
 
 const EXPORTED_FOLDER = ".exported-markdown-cache";
 const EXPORTED_MEDIA_FOLDER = "media";
@@ -127,7 +132,7 @@ const generate = (data) => {
 };
 
 async function onNotebooks(context) {
-  context._html_map = {};
+  context._markdown_map = {};
   context._media_map = {};
   //创建所有文件夹
   const root = path.join(__dirname, EXPORTED_FOLDER);
@@ -138,9 +143,9 @@ async function onNotebooks(context) {
     const mediaFolder = path.join(folder, EXPORTED_MEDIA_FOLDER);
     for (let note of notebook.array) {
       const name = note.name.replaceAll("/", "_");
-      const file = path.join(folder, `${name}.html`);
+      const file = path.join(folder, `${name}.md`);
       //给每一个创建笔记文件创建guid关联
-      context._html_map[note.guid] = file;
+      context._markdown_map[note.guid] = file;
       context._media_map[note.guid] = mediaFolder;
     }
   }
@@ -175,14 +180,16 @@ async function convert(note, file, media) {
     note_bodys,
   });
 
-  fs.writeFileSync(file, result, { encoding: "utf-8" });
+  const markdown = turndownService.turndown(result);
+
+  fs.writeFileSync(file, markdown, { encoding: "utf-8" });
 }
 
 async function onNotes(context) {
   for (let note of context.notes) {
     await convert(
       note,
-      context._html_map[note.guid],
+      context._markdown_map[note.guid],
       context._media_map[note.guid]
     );
   }

@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@joplin/turndown-plugin-gfm@^1.0.54":
+  version "1.0.54"
+  resolved "https://registry.npmmirror.com/@joplin/turndown-plugin-gfm/-/turndown-plugin-gfm-1.0.54.tgz#7259f524a607638878170b74d3735198987d0b28"
+  integrity sha512-QoNPwP7CDJOn/pfehGrLTKl6fgcl/VIXQP1bNqm8tfx3bx3uedyjFE75ef8yRGwNIe+ukqPbDFo+EVBc7rE4+Q==
+
 "@joplin/turndown@^4.0.71":
   version "4.0.71"
   resolved "https://registry.npmmirror.com/@joplin/turndown/-/turndown-4.0.71.tgz#4408b5db70e96aa3ab094a33e15c81294aa1be98"
