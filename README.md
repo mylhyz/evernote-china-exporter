@@ -33,14 +33,11 @@ ThriftException {
 
 ### 转换导出格式
 
-在 `converter` 下是用于将导出的原始数据进行转换的代码，目前支持导出 html，markdown
+在 `converter` 下是用于将导出的原始数据进行转换的代码，目前支持导出 html，markdown, obsidian
 
 ```bash
 cd converter
 node main.js <evernote-china-exporter/exported 的路径>
-
-#或者添加环境变量打印出所有笔记本和笔记标题
-LOG_ENABLE=1 node main.js <evernote-china-exporter/exported 的路径>
 ```
 
 默认的导出文件夹是
@@ -50,4 +47,6 @@ LOG_ENABLE=1 node main.js <evernote-china-exporter/exported 的路径>
 .exported-html-cache
 # markdown
 .exported-markdown-cache
+# obsidian
+.exported-obsidian-cache
 ```

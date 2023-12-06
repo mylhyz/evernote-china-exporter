@@ -12,6 +12,7 @@
   "dependencies": {
     "@joplin/turndown": "^4.0.71",
     "@joplin/turndown-plugin-gfm": "^1.0.54",
+    "inquirer": "^8.0.0",
     "mustache": "^4.2.0",
     "xml-js": "^1.6.11"
   }

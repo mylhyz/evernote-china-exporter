@@ -1,7 +1,4 @@
 async function onNotebooks(context) {
-  if (!process.env.LOG_ENABLE) {
-    return;
-  }
   console.log(`[INFO] === notebooks ===`);
   for (let notebook of context.notebooks) {
     console.log(`[INFO] === ${notebook.name}`);

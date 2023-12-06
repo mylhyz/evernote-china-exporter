@@ -4,12 +4,22 @@ const path = require("path");
 const html = require("./export_to_html");
 const markdown = require("./export_to_markdown");
 const logger = require("./export_to_logger");
-const walkers = [html, markdown, logger];
+const obsidian = require("./export_to_obsidian");
+const inquirer = require("inquirer");
+const walkers = { html, markdown, logger, obsidian };
 const runWalk = async (context) => {
-  for (let walker of walkers) {
-    await walker.onNotebooks(context);
-    await walker.onNotes(context);
-  }
+  const ret = await inquirer.prompt([
+    {
+      type: "list",
+      name: "format",
+      message: "请选择导出格式",
+      choices: ["logger", "Markdown", "HTML", "Obsidian"],
+    },
+  ]);
+
+  const walker = walkers[ret.format.toLowerCase()];
+  await walker.onNotebooks(context);
+  await walker.onNotes(context);
 };
 
 const runMain = async (argv) => {
